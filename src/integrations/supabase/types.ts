@@ -14,13 +14,135 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          date_of_birth: string | null
+          first_name: string | null
+          gender: string | null
+          id: string
+          last_name: string | null
+          lga: string | null
+          marital_status: string | null
+          occupation: string | null
+          phone_number: string | null
+          profile_photo_url: string | null
+          registration_id: string | null
+          state: string | null
+          status: string | null
+          supporting_document_url: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          first_name?: string | null
+          gender?: string | null
+          id?: string
+          last_name?: string | null
+          lga?: string | null
+          marital_status?: string | null
+          occupation?: string | null
+          phone_number?: string | null
+          profile_photo_url?: string | null
+          registration_id?: string | null
+          state?: string | null
+          status?: string | null
+          supporting_document_url?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          first_name?: string | null
+          gender?: string | null
+          id?: string
+          last_name?: string | null
+          lga?: string | null
+          marital_status?: string | null
+          occupation?: string | null
+          phone_number?: string | null
+          profile_photo_url?: string | null
+          registration_id?: string | null
+          state?: string | null
+          status?: string | null
+          supporting_document_url?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      registrations: {
+        Row: {
+          address: string
+          created_at: string | null
+          date_of_birth: string
+          email: string | null
+          first_name: string
+          gender: string
+          id: string
+          last_name: string
+          lga: string
+          marital_status: string | null
+          occupation: string | null
+          phone_number: string
+          registration_id: string
+          state: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address: string
+          created_at?: string | null
+          date_of_birth: string
+          email?: string | null
+          first_name: string
+          gender: string
+          id?: string
+          last_name: string
+          lga: string
+          marital_status?: string | null
+          occupation?: string | null
+          phone_number: string
+          registration_id: string
+          state: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string
+          created_at?: string | null
+          date_of_birth?: string
+          email?: string | null
+          first_name?: string
+          gender?: string
+          id?: string
+          last_name?: string
+          lga?: string
+          marital_status?: string | null
+          occupation?: string | null
+          phone_number?: string
+          registration_id?: string
+          state?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_registration_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
