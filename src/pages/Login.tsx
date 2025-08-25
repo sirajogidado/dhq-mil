@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -46,6 +48,59 @@ const Login = () => {
     }
   };
 
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
+    if (!email.endsWith("@dhq.mil.ng")) {
+      setError("Only DHQ military email addresses are authorized");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
+      if (data.user) {
+        toast({
+          title: "Account created successfully",
+          description: "Please check your email to verify your account, or login directly if email confirmation is disabled.",
+        });
+        // Try to sign in immediately if email confirmation is disabled
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        
+        if (!signInError && signInData.user) {
+          navigate("/dashboard");
+        }
+      }
+    } catch (err) {
+      setError("An unexpected error occurred during registration");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-military flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -73,56 +128,122 @@ const Login = () => {
 
         <Card className="shadow-elegant border-0">
           <CardHeader className="text-center">
-            <CardTitle className="text-primary">Officer Login</CardTitle>
+            <CardTitle className="text-primary">Officer Access</CardTitle>
             <CardDescription>
-              Access the national citizen database system
+              Secure access to the national citizen database system
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="register">Register</TabsTrigger>
+              </TabsList>
               
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="officer@dhq.mil.ng"
-                  required
-                  className="border-primary/20 focus:border-primary"
-                />
-              </div>
+              <TabsContent value="login">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="login-email">Email</Label>
+                    <Input
+                      id="login-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="officer@dhq.mil.ng"
+                      required
+                      className="border-primary/20 focus:border-primary"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="login-password">Password</Label>
+                    <Input
+                      id="login-password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your secure password"
+                      required
+                      className="border-primary/20 focus:border-primary"
+                    />
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-gradient-primary hover:opacity-90 shadow-glow" 
+                    disabled={loading}
+                  >
+                    {loading ? "Authenticating..." : "Access System"}
+                  </Button>
+                </form>
+              </TabsContent>
               
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your secure password"
-                  required
-                  className="border-primary/20 focus:border-primary"
-                />
-              </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full bg-gradient-primary hover:opacity-90 shadow-glow" 
-                disabled={loading}
-              >
-                {loading ? "Authenticating..." : "Access System"}
-              </Button>
-            </form>
+              <TabsContent value="register">
+                <form onSubmit={handleSignup} className="space-y-4">
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="register-email">Military Email</Label>
+                    <Input
+                      id="register-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="officer@dhq.mil.ng"
+                      required
+                      className="border-primary/20 focus:border-primary"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="register-password">Password</Label>
+                    <Input
+                      id="register-password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Create secure password"
+                      required
+                      className="border-primary/20 focus:border-primary"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirm Password</Label>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm your password"
+                      required
+                      className="border-primary/20 focus:border-primary"
+                    />
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-secondary hover:opacity-90 shadow-glow" 
+                    disabled={loading}
+                  >
+                    {loading ? "Creating Account..." : "Register Officer"}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
 
             <div className="mt-6 text-center text-xs text-muted-foreground">
-              <p>Authorized personnel only</p>
+              <p>Authorized DHQ personnel only</p>
               <p>All activities are monitored and logged</p>
             </div>
           </CardContent>
