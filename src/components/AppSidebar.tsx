@@ -1,0 +1,124 @@
+import { BarChart3, Users, Shield, FileText, LogOut, Settings } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarHeader,
+  SidebarFooter,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+
+const menuItems = [
+  { title: "Overview", url: "/dashboard", icon: BarChart3 },
+  { title: "Citizens", url: "/dashboard/citizens", icon: Users },
+  { title: "Registrations", url: "/dashboard/registrations", icon: FileText },
+  { title: "Security", url: "/dashboard/security", icon: Shield },
+  { title: "Settings", url: "/dashboard/settings", icon: Settings },
+];
+
+export function AppSidebar() {
+  const { state } = useSidebar();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to logout. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      toast({
+        title: "Logged out",
+        description: "You have been securely logged out.",
+      });
+      navigate("/login");
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred during logout.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const isCollapsed = state === "collapsed";
+
+  return (
+    <Sidebar className={`${isCollapsed ? "w-16" : "w-64"} border-r border-primary/20`}>
+      <SidebarHeader className="border-b border-primary/20 bg-gradient-military">
+        <div className="flex items-center gap-3 p-4">
+          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+            <img 
+              src="/lovable-uploads/7eba8c59-5aed-446e-89fc-7f834f8505c4.png" 
+              alt="DHQ Logo" 
+              className="w-8 h-8 object-contain"
+            />
+          </div>
+          {!isCollapsed && (
+            <div>
+              <h2 className="text-sm font-bold text-white">DHQ</h2>
+              <p className="text-xs text-white/80">Military Database</p>
+            </div>
+          )}
+        </div>
+      </SidebarHeader>
+
+      <SidebarContent className="bg-card">
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-primary">Navigation</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url} 
+                      end={item.url === "/dashboard"}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-3 py-2 rounded-lg transition-smooth ${
+                          isActive 
+                            ? "bg-primary text-primary-foreground shadow-glow" 
+                            : "text-foreground hover:bg-primary/10 hover:text-primary"
+                        }`
+                      }
+                    >
+                      <item.icon className="w-5 h-5" />
+                      {!isCollapsed && <span className="font-medium">{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter className="border-t border-primary/20 p-4">
+        <Button 
+          onClick={handleLogout}
+          variant="outline"
+          size="sm"
+          className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+        >
+          <LogOut className="w-4 h-4" />
+          {!isCollapsed && <span className="ml-2">Logout</span>}
+        </Button>
+      </SidebarFooter>
+    </Sidebar>
+  );
+}

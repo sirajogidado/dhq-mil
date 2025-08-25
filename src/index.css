@@ -8,47 +8,52 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Nigerian-inspired color palette */
+    /* Military color palette */
     --background: 0 0% 98%;
-    --foreground: 140 15% 15%;
+    --foreground: 210 91% 25%;
 
     --card: 0 0% 100%;
-    --card-foreground: 140 15% 15%;
+    --card-foreground: 210 91% 25%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 140 15% 15%;
+    --popover-foreground: 210 91% 25%;
 
-    /* Deep Nigerian green as primary */
-    --primary: 140 85% 15%;
+    /* Military blue as primary */
+    --primary: 210 91% 25%;
     --primary-foreground: 0 0% 98%;
-    --primary-light: 140 60% 35%;
-    --primary-glow: 140 100% 85%;
+    --primary-light: 210 71% 40%;
+    --primary-glow: 210 81% 50%;
 
-    /* Golden accent from Nigerian flag */
-    --secondary: 45 95% 50%;
-    --secondary-foreground: 140 15% 15%;
-    --secondary-light: 45 85% 65%;
+    /* Military red as secondary */
+    --secondary: 351 79% 46%;
+    --secondary-foreground: 0 0% 98%;
+    --secondary-light: 351 59% 65%;
 
-    --muted: 140 20% 96%;
-    --muted-foreground: 140 10% 45%;
+    /* Military teal as tertiary */
+    --tertiary: 189 34% 51%;
+    --tertiary-foreground: 0 0% 98%;
+    --tertiary-light: 189 24% 70%;
 
-    --accent: 140 30% 92%;
-    --accent-foreground: 140 15% 15%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 210 20% 45%;
 
-    --destructive: 0 75% 55%;
+    --accent: 189 34% 51%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 351 79% 46%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 140 15% 88%;
-    --input: 140 15% 94%;
-    --ring: 140 85% 15%;
+    --border: 210 30% 88%;
+    --input: 210 30% 94%;
+    --ring: 210 91% 25%;
 
-    /* Success state for completed registrations */
+    /* Success state for verified identities */
     --success: 140 65% 45%;
     --success-foreground: 0 0% 98%;
 
     /* Design system enhancements */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+    --gradient-military: linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 50%, hsl(var(--tertiary)) 100%);
     --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
     
     --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.2);
