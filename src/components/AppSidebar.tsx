@@ -1,4 +1,4 @@
-import { BarChart3, Users, Shield, FileText, LogOut, Settings, AlertTriangle, Map, MapPin, Bell } from "lucide-react";
+import { BarChart3, Users, Shield, FileText, LogOut, Settings } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   Sidebar,
@@ -18,14 +18,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const menuItems = [
-  { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
-  { title: "Criminal Database", url: "/dashboard/criminal-database", icon: Users },
-  { title: "Alerts & Notifications", url: "/dashboard/alerts", icon: Bell },
-  { title: "Maps & Geolocation", url: "/dashboard/maps", icon: Map },
-  { title: "Reports & Analytics", url: "/dashboard/reports", icon: FileText },
-  { title: "User Management", url: "/dashboard/user-management", icon: Shield },
-  { title: "Incident Reporting", url: "/dashboard/incidents", icon: AlertTriangle },
-  { title: "Settings & Help", url: "/dashboard/settings", icon: Settings },
+  { title: "Overview", url: "/dashboard", icon: BarChart3 },
+  { title: "Citizens", url: "/dashboard/citizens", icon: Users },
+  { title: "Registrations", url: "/dashboard/registrations", icon: FileText },
+  { title: "Security", url: "/dashboard/security", icon: Shield },
+  { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
