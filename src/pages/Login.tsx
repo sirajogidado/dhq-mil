@@ -66,36 +66,33 @@ const Login = () => {
     }
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`
-        }
-      });
+      // Submit registration request to pending_registrations table
+      const { error } = await supabase
+        .from('pending_registrations')
+        .insert({
+          email: email,
+          full_name: email.split('@')[0].replace('.', ' '), // Extract name from email
+          reason_for_access: "Military Database Access Request",
+          department: "To be assigned by admin",
+          status: "pending"
+        });
 
       if (error) {
         setError(error.message);
         return;
       }
 
-      if (data.user) {
-        toast({
-          title: "Account created successfully",
-          description: "Please check your email to verify your account, or login directly if email confirmation is disabled.",
-        });
-        // Try to sign in immediately if email confirmation is disabled
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (!signInError && signInData.user) {
-          navigate("/dashboard");
-        }
-      }
+      toast({
+        title: "Registration request submitted!",
+        description: "Your request has been sent to administrators for approval. You will be contacted once approved.",
+      });
+
+      // Clear form
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
     } catch (err) {
-      setError("An unexpected error occurred during registration");
+      setError("An unexpected error occurred during registration request");
     } finally {
       setLoading(false);
     }
