@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      pending_registrations: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string | null
+          department: string | null
+          email: string
+          full_name: string
+          id: string
+          phone_number: string | null
+          rank: string | null
+          reason_for_access: string | null
+          status: string | null
+          unit: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          department?: string | null
+          email: string
+          full_name: string
+          id?: string
+          phone_number?: string | null
+          rank?: string | null
+          reason_for_access?: string | null
+          status?: string | null
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          department?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          phone_number?: string | null
+          rank?: string | null
+          reason_for_access?: string | null
+          status?: string | null
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_registrations_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string | null
@@ -81,56 +137,131 @@ export type Database = {
         Row: {
           address: string
           created_at: string | null
+          crime_type: string | null
           date_of_birth: string
           email: string | null
           first_name: string
           gender: string
           id: string
+          interpol_id: string | null
           last_name: string
+          last_seen_date: string | null
+          last_seen_location: string | null
           lga: string
           marital_status: string | null
+          notes: string | null
           occupation: string | null
           phone_number: string
+          photo_url: string | null
           registration_id: string
+          severity: string | null
           state: string
           status: string | null
           updated_at: string | null
+          wanted_status: string | null
         }
         Insert: {
           address: string
           created_at?: string | null
+          crime_type?: string | null
           date_of_birth: string
           email?: string | null
           first_name: string
           gender: string
           id?: string
+          interpol_id?: string | null
           last_name: string
+          last_seen_date?: string | null
+          last_seen_location?: string | null
           lga: string
           marital_status?: string | null
+          notes?: string | null
           occupation?: string | null
           phone_number: string
+          photo_url?: string | null
           registration_id: string
+          severity?: string | null
           state: string
           status?: string | null
           updated_at?: string | null
+          wanted_status?: string | null
         }
         Update: {
           address?: string
           created_at?: string | null
+          crime_type?: string | null
           date_of_birth?: string
           email?: string | null
           first_name?: string
           gender?: string
           id?: string
+          interpol_id?: string | null
           last_name?: string
+          last_seen_date?: string | null
+          last_seen_location?: string | null
           lga?: string
           marital_status?: string | null
+          notes?: string | null
           occupation?: string | null
           phone_number?: string
+          photo_url?: string | null
           registration_id?: string
+          severity?: string | null
           state?: string
           status?: string | null
           updated_at?: string | null
+          wanted_status?: string | null
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          created_at: string
+          department: string | null
+          email: string | null
+          full_name: string
+          id: string
+          is_active: boolean
+          last_login: string | null
+          phone_number: string | null
+          rank: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          status: string | null
+          unit: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          full_name: string
+          id?: string
+          is_active?: boolean
+          last_login?: string | null
+          phone_number?: string | null
+          rank?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          status?: string | null
+          unit?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          last_login?: string | null
+          phone_number?: string | null
+          rank?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          status?: string | null
+          unit?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -139,13 +270,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_user_registration: {
+        Args: { registration_id: string }
+        Returns: undefined
+      }
       generate_registration_id: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_user_role: {
+        Args: { user_uuid: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["user_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      user_role: "admin" | "operator" | "analyst" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -272,6 +418,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["admin", "operator", "analyst", "viewer"],
+    },
   },
 } as const
