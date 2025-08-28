@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
+  { title: "Global Operations", url: "/dashboard/global-operations", icon: Settings },
   { title: "Criminal Database", url: "/dashboard/criminal-database", icon: Users },
   { title: "Alerts & Notifications", url: "/dashboard/alerts", icon: Bell },
   { title: "Maps & Geolocation", url: "/dashboard/maps", icon: Map },

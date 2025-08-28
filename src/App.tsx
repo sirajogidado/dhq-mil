@@ -13,6 +13,7 @@ import ReportsAnalytics from "./pages/ReportsAnalytics";
 import UserManagement from "./pages/UserManagement";
 import IncidentReporting from "./pages/IncidentReporting";
 import SettingsHelp from "./pages/SettingsHelp";
+import GlobalOperations from "./pages/GlobalOperations";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./components/AuthProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -38,6 +39,7 @@ const App = () => (
               }
             >
               <Route index element={<DashboardOverview />} />
+              <Route path="global-operations" element={<GlobalOperations />} />
               <Route path="criminal-database" element={<CriminalDatabase />} />
               <Route path="alerts" element={<AlertsNotifications />} />
               <Route path="maps" element={<MapsGeolocation />} />

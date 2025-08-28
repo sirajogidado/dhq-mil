@@ -1,8 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Users, Shield, FileCheck, AlertTriangle, Eye, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import CitizenSearch from "@/components/CitizenSearch";
 
 interface DatabaseStats {
   totalRegistrations: number;
@@ -118,14 +122,39 @@ const DashboardOverview = () => {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-primary mb-2">
-          Operational Dashboard
-        </h1>
-        <p className="text-muted-foreground">
-          Real-time overview of national citizen database and security monitoring
-        </p>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-primary">Military Dashboard Overview</h1>
+          <p className="text-muted-foreground mt-1">
+            Real-time system monitoring and key performance indicators
+          </p>
+        </div>
+        
+        {/* Quick Search */}
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search citizen by name, ID, or phone..."
+              className="pl-10 w-80"
+            />
+          </div>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="bg-primary text-primary-foreground">
+                <Search className="w-4 h-4 mr-2" />
+                Advanced Search
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl">
+              <DialogHeader>
+                <DialogTitle>Citizen Database Search</DialogTitle>
+              </DialogHeader>
+              <CitizenSearch onSelectCitizen={(citizen) => console.log("Selected citizen:", citizen)} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Security Status Bar */}
@@ -166,10 +195,34 @@ const DashboardOverview = () => {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {quickActions.map((action, index) => {
+        <Dialog>
+          <DialogTrigger asChild>
+            <Card className="cursor-pointer hover:shadow-elegant transition-smooth border-l-4 border-l-primary">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Search className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Search Citizen</CardTitle>
+                    <CardDescription>Find citizen by ID or biometric</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          </DialogTrigger>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Citizen Database Search</DialogTitle>
+            </DialogHeader>
+            <CitizenSearch onSelectCitizen={(citizen) => console.log("Selected citizen:", citizen)} />
+          </DialogContent>
+        </Dialog>
+        
+        {quickActions.slice(1).map((action, index) => {
           const Icon = action.icon;
           return (
-            <Card key={index} className="cursor-pointer hover:shadow-elegant transition-smooth border-l-4 border-l-primary">
+            <Card key={index + 1} className="cursor-pointer hover:shadow-elegant transition-smooth border-l-4 border-l-primary">
               <CardHeader>
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-lg bg-${action.color}/10`}>
