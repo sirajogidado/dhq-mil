@@ -63,8 +63,8 @@ export function AppSidebar() {
   const isCollapsed = state === "collapsed";
 
   return (
-    <Sidebar className={`${isCollapsed ? "w-16" : "w-64"} border-r border-primary/20`}>
-      <SidebarHeader className="border-b border-primary/20 bg-gradient-military">
+    <Sidebar className={`${isCollapsed ? "w-16" : "w-64"} border-r border-sidebar-border bg-sidebar`}>
+      <SidebarHeader className="border-b border-sidebar-border bg-gradient-military">
         <div className="flex items-center gap-3 p-4">
           <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
             <img 
@@ -82,9 +82,9 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="bg-card">
+      <SidebarContent className="bg-sidebar">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-primary">Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-sidebar-foreground px-4 py-2 text-xs font-semibold uppercase tracking-wider">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -94,10 +94,10 @@ export function AppSidebar() {
                       to={item.url} 
                       end={item.url === "/dashboard"}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-3 py-2 rounded-lg transition-smooth ${
+                        `flex items-center gap-3 px-3 py-2 mx-2 rounded-lg transition-smooth ${
                           isActive 
-                            ? "bg-primary text-primary-foreground shadow-glow" 
-                            : "text-foreground hover:bg-primary/10 hover:text-primary"
+                            ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-glow" 
+                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                         }`
                       }
                     >
@@ -112,7 +112,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-primary/20 p-4">
+      <SidebarFooter className="border-t border-sidebar-border p-4 bg-sidebar">
         <Button 
           onClick={handleLogout}
           variant="outline"

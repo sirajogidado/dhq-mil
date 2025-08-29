@@ -7,6 +7,7 @@ import { Users, Shield, FileCheck, AlertTriangle, Eye, Search } from "lucide-rea
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import CitizenSearch from "@/components/CitizenSearch";
+import { useAuth } from "@/components/AuthProvider";
 
 interface DatabaseStats {
   totalRegistrations: number;
@@ -16,6 +17,7 @@ interface DatabaseStats {
 }
 
 const DashboardOverview = () => {
+  const { user } = useAuth();
   const [stats, setStats] = useState<DatabaseStats>({
     totalRegistrations: 0,
     verifiedIdentities: 0,
@@ -122,10 +124,29 @@ const DashboardOverview = () => {
 
   return (
     <div className="space-y-6">
+      {/* Welcome Section */}
+      <div className="bg-gradient-military p-6 rounded-lg text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Welcome to DHQ Military Database</h1>
+            <p className="text-white/90 mt-1">
+              Officer: {user?.email} | Access Level: Classified
+            </p>
+            <p className="text-white/80 text-sm mt-2">
+              System Status: Operational | Last Login: {new Date().toLocaleDateString()}
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-3xl font-bold">#{Math.floor(Math.random() * 9999).toString().padStart(4, '0')}</div>
+            <p className="text-white/80 text-sm">Session ID</p>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-primary">Military Dashboard Overview</h1>
+          <h2 className="text-3xl font-bold text-primary">Military Dashboard Overview</h2>
           <p className="text-muted-foreground mt-1">
             Real-time system monitoring and key performance indicators
           </p>

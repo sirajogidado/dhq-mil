@@ -12,8 +12,8 @@ interface MapboxMapProps {
 const MapboxMap: React.FC<MapboxMapProps> = ({ onLocationSelect }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [apiKey, setApiKey] = useState('');
-  const [showApiInput, setShowApiInput] = useState(true);
+  const [apiKey, setApiKey] = useState('pk.eyJ1IjoibWFydmVsaiIsImEiOiJjbWV2NmgzOTQwZW5nMmdzNXBvZmFneW84In0.OaNDPl6OvdfOVHzolTWEcA');
+  const [showApiInput, setShowApiInput] = useState(false);
 
   const initializeMap = () => {
     if (!mapContainer.current || !apiKey) return;
@@ -114,12 +114,16 @@ const MapboxMap: React.FC<MapboxMapProps> = ({ onLocationSelect }) => {
   };
 
   useEffect(() => {
+    if (apiKey) {
+      initializeMap();
+    }
+    
     return () => {
       if (map.current) {
         map.current.remove();
       }
     };
-  }, []);
+  }, [apiKey]);
 
   if (showApiInput) {
     return (
