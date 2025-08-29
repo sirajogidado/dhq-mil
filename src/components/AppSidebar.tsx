@@ -63,7 +63,7 @@ export function AppSidebar() {
   const isCollapsed = state === "collapsed";
 
   return (
-    <Sidebar className={`${isCollapsed ? "w-16" : "w-64"} border-r border-sidebar-border bg-sidebar`}>
+    <Sidebar className={`${isCollapsed ? "w-16" : "w-64"} border-r border-sidebar-border bg-sidebar-background`}>
       <SidebarHeader className="border-b border-sidebar-border bg-gradient-military">
         <div className="flex items-center gap-3 p-4">
           <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
@@ -82,7 +82,7 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="bg-sidebar">
+      <SidebarContent className="bg-sidebar-background">
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground px-4 py-2 text-xs font-semibold uppercase tracking-wider">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -112,7 +112,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-4 bg-sidebar">
+      <SidebarFooter className="border-t border-sidebar-border p-4 bg-sidebar-background">
         <Button 
           onClick={handleLogout}
           variant="outline"

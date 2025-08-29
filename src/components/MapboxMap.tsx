@@ -36,18 +36,45 @@ const MapboxMap: React.FC<MapboxMapProps> = ({ onLocationSelect }) => {
       'top-right'
     );
 
-    // Nigerian states data with coordinates
+    // All 36 Nigerian states with coordinates and security status
     const nigerianStates = [
-      { name: "Lagos", coordinates: [3.3792, 6.5244] },
-      { name: "Abuja", coordinates: [7.5399, 9.0579] },
-      { name: "Kano", coordinates: [8.5164, 12.0022] },
-      { name: "Rivers", coordinates: [6.8432, 4.8156] },
-      { name: "Ogun", coordinates: [3.4516, 7.1608] },
-      { name: "Kaduna", coordinates: [7.4401, 10.5264] },
-      { name: "Oyo", coordinates: [3.9470, 8.0037] },
-      { name: "Delta", coordinates: [6.1924, 5.6804] },
-      { name: "Enugu", coordinates: [7.5105, 6.5244] },
-      { name: "Cross River", coordinates: [8.3270, 5.9631] }
+      { name: "Abia", coordinates: [7.5629, 5.4527], threatLevel: "low" },
+      { name: "Adamawa", coordinates: [12.4478, 9.3265], threatLevel: "medium" },
+      { name: "Akwa Ibom", coordinates: [7.8753, 5.0066], threatLevel: "low" },
+      { name: "Anambra", coordinates: [6.9206, 6.2104], threatLevel: "low" },
+      { name: "Bauchi", coordinates: [9.8442, 10.3158], threatLevel: "medium" },
+      { name: "Bayelsa", coordinates: [6.2664, 4.7719], threatLevel: "medium" },
+      { name: "Benue", coordinates: [8.1335, 7.3336], threatLevel: "high" },
+      { name: "Borno", coordinates: [13.0827, 11.8846], threatLevel: "high" },
+      { name: "Cross River", coordinates: [8.3270, 5.9631], threatLevel: "low" },
+      { name: "Delta", coordinates: [6.1924, 5.6804], threatLevel: "medium" },
+      { name: "Ebonyi", coordinates: [8.1137, 6.2649], threatLevel: "low" },
+      { name: "Edo", coordinates: [6.3350, 6.3176], threatLevel: "medium" },
+      { name: "Ekiti", coordinates: [5.2206, 7.7193], threatLevel: "low" },
+      { name: "Enugu", coordinates: [7.5105, 6.5244], threatLevel: "low" },
+      { name: "Gombe", coordinates: [11.1667, 10.2833], threatLevel: "medium" },
+      { name: "Imo", coordinates: [7.0256, 5.4947], threatLevel: "low" },
+      { name: "Jigawa", coordinates: [9.5540, 12.2230], threatLevel: "medium" },
+      { name: "Kaduna", coordinates: [7.4401, 10.5264], threatLevel: "high" },
+      { name: "Kano", coordinates: [8.5164, 12.0022], threatLevel: "medium" },
+      { name: "Katsina", coordinates: [7.6006, 12.9908], threatLevel: "high" },
+      { name: "Kebbi", coordinates: [4.1975, 12.4533], threatLevel: "medium" },
+      { name: "Kogi", coordinates: [6.7401, 7.7999], threatLevel: "medium" },
+      { name: "Kwara", coordinates: [4.5756, 8.9669], threatLevel: "low" },
+      { name: "Lagos", coordinates: [3.3792, 6.5244], threatLevel: "medium" },
+      { name: "Nasarawa", coordinates: [8.5378, 8.5378], threatLevel: "medium" },
+      { name: "Niger", coordinates: [6.5569, 10.2031], threatLevel: "high" },
+      { name: "Ogun", coordinates: [3.4516, 7.1608], threatLevel: "low" },
+      { name: "Ondo", coordinates: [5.1931, 7.2526], threatLevel: "low" },
+      { name: "Osun", coordinates: [4.5560, 7.5629], threatLevel: "low" },
+      { name: "Oyo", coordinates: [3.9470, 8.0037], threatLevel: "low" },
+      { name: "Plateau", coordinates: [8.8965, 9.2182], threatLevel: "high" },
+      { name: "Rivers", coordinates: [6.8432, 4.8156], threatLevel: "medium" },
+      { name: "Sokoto", coordinates: [5.2340, 13.0609], threatLevel: "medium" },
+      { name: "Taraba", coordinates: [9.7801, 8.8901], threatLevel: "medium" },
+      { name: "Yobe", coordinates: [11.7466, 12.2939], threatLevel: "high" },
+      { name: "Zamfara", coordinates: [6.2407, 12.1664], threatLevel: "high" },
+      { name: "Abuja FCT", coordinates: [7.5399, 9.0579], threatLevel: "medium" }
     ];
 
     // Sample case data
@@ -62,13 +89,23 @@ const MapboxMap: React.FC<MapboxMapProps> = ({ onLocationSelect }) => {
     map.current.on('load', () => {
       if (!map.current) return;
 
-      // Add state markers
+      // Add state markers with color coding based on threat level
       nigerianStates.forEach((state) => {
+        let color = '#10b981'; // green for low threat
+        if (state.threatLevel === 'medium') color = '#f59e0b'; // yellow for medium threat
+        if (state.threatLevel === 'high') color = '#ef4444'; // red for high threat
+
         const marker = new mapboxgl.Marker({
-          color: '#1e40af'
+          color: color,
+          scale: 0.8
         })
         .setLngLat(state.coordinates as [number, number])
-        .setPopup(new mapboxgl.Popup().setHTML(`<h3>${state.name}</h3>`))
+        .setPopup(new mapboxgl.Popup().setHTML(`
+          <div>
+            <h3 class="font-bold">${state.name} State</h3>
+            <p class="text-sm">Threat Level: <span class="font-semibold">${state.threatLevel.toUpperCase()}</span></p>
+          </div>
+        `))
         .addTo(map.current!);
       });
 
@@ -172,8 +209,16 @@ const MapboxMap: React.FC<MapboxMapProps> = ({ onLocationSelect }) => {
             <span>Resolved Cases</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-            <span>State Locations</span>
+            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            <span>Low Threat States</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+            <span>Medium Threat States</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+            <span>High Threat States</span>
           </div>
         </div>
       </div>
