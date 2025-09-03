@@ -37,7 +37,7 @@ const Login = () => {
       if (data.user) {
         toast({
           title: "Login successful",
-          description: "Welcome to the Military Citizen Database System",
+          description: "Welcome to NIMADS - National Integrated Military & Demographic System",
         });
         navigate("/dashboard");
       }
@@ -116,7 +116,7 @@ const Login = () => {
             Defence Headquarters
           </h1>
           <p className="text-white/90 text-sm">
-            Military Citizen Database System
+            NIMADS - National Integrated Military & Demographic System
           </p>
           <p className="text-white/80 text-xs mt-1">
             Secure • Verified • Protected

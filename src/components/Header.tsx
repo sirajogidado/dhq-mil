@@ -11,8 +11,8 @@ const Header = () => {
               <Shield className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-primary">Naija Census Pulse</h1>
-              <p className="text-sm text-muted-foreground">National Registry & Identity System</p>
+              <h1 className="text-xl font-bold text-primary">NIMADS</h1>
+              <p className="text-sm text-muted-foreground">National Integrated Military & Demographic System</p>
             </div>
           </div>
           

@@ -13,7 +13,7 @@ import MapboxMap from "@/components/MapboxMap";
 import { useToast } from "@/hooks/use-toast";
 
 // Enhanced map pins data
-const mapPins = [
+const [mapPins, setMapPins] = useState([
   {
     id: "P001",
     coordinates: [3.3792, 6.5244] as [number, number],
@@ -38,7 +38,7 @@ const mapPins = [
     status: "resolved" as const,
     timestamp: "2025-08-25 09:45"
   }
-];
+]);
 
 export default function MapsGeolocation() {
   const [selectedPin, setSelectedPin] = useState<typeof mapPins[0] | null>(null);
@@ -71,9 +71,27 @@ export default function MapsGeolocation() {
       return;
     }
 
+    const [lat, lng] = newPin.coordinates.split(',').map(coord => parseFloat(coord.trim()));
+    const newPinData = {
+      id: `P${String(mapPins.length + 1).padStart(3, '0')}`,
+      coordinates: [lng, lat] as [number, number],
+      description: newPin.description,
+      crimeType: newPin.crimeType,
+      status: "active" as const,
+      timestamp: new Date().toLocaleString('en-GB', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      })
+    };
+
+    setMapPins(prev => [...prev, newPinData]);
+    
     toast({
       title: "Success",
-      description: "New security pin added successfully"
+      description: "New security pin added successfully to the map"
     });
     
     setNewPin({ coordinates: "", description: "", crimeType: "" });
@@ -183,7 +201,7 @@ export default function MapsGeolocation() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <MapboxMap />
+              <MapboxMap onLocationSelect={handleLocationSelect} />
             </CardContent>
           </Card>
         </TabsContent>

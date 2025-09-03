@@ -177,9 +177,10 @@ const IncidentReporting = () => {
                 className="w-full justify-start"
                 onClick={() => setIncident({
                   ...incident,
-                  reporter: "Citizen X",
+                  reporter: "Citizen Report",
                   incidentType: "sighting",
-                  description: "Suspect seen at market around 2PM"
+                  location: "Lagos State",
+                  description: "SUSPECT SIGHTING REPORT\n\nDate/Time: [Current Date/Time]\nLocation: [Specific Address/Landmark]\nSuspect Description: [Height, Build, Clothing, Distinguishing Features]\nActivity Observed: [What was the suspect doing?]\nDuration of Observation: [How long was suspect observed?]\nWitnesses Present: [Any other witnesses?]\nContact Information: [Reporter's contact details]\n\nAdditional Notes:\n- [Any other relevant information]\n- [Direction suspect was heading]\n- [Vehicle information if applicable]"
                 })}
               >
                 <Eye className="w-4 h-4 mr-2" />
@@ -192,7 +193,8 @@ const IncidentReporting = () => {
                   ...incident,
                   reporter: "Anonymous",
                   incidentType: "tip",
-                  description: "Received information about suspicious activity"
+                  location: "Confidential",
+                  description: "ANONYMOUS TIP REPORT\n\nType of Information: [Crime Type/Activity]\nLocation: [Where is this happening?]\nTime Frame: [When does this occur?]\nPersons Involved: [Number of people, descriptions if known]\nActivity Details: [Detailed description of suspicious activity]\nFrequency: [How often does this occur?]\nSafety Concerns: [Is this an immediate threat?]\nEvidence Available: [Photos, documents, recordings?]\n\nConfidentiality Notice:\n- This report is submitted anonymously\n- No personal information of reporter required\n- Contact only through secure channels if follow-up needed\n\nUrgency Level: [Low/Medium/High]"
                 })}
               >
                 <AlertTriangle className="w-4 h-4 mr-2" />

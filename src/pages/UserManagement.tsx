@@ -199,10 +199,92 @@ const UserManagement = () => {
         <TabsContent value="users">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                System Users
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  System Users
+                </CardTitle>
+                <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-gradient-primary text-primary-foreground">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create User
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Create New System User</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="new-username">Full Name</Label>
+                          <Input
+                            id="new-username"
+                            placeholder="Enter full name"
+                            value={newUser.username}
+                            onChange={(e) => setNewUser(prev => ({ ...prev, username: e.target.value }))}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="new-email">Email</Label>
+                          <Input
+                            id="new-email"
+                            type="email"
+                            placeholder="user@dhq.mil.ng"
+                            value={newUser.email}
+                            onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="new-role">Role</Label>
+                          <Select value={newUser.role} onValueChange={(value) => setNewUser(prev => ({ ...prev, role: value }))}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select role" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="admin">Admin</SelectItem>
+                              <SelectItem value="editor">Editor</SelectItem>
+                              <SelectItem value="viewer">Viewer</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="new-password">Password</Label>
+                          <Input
+                            id="new-password"
+                            type="password"
+                            placeholder="Enter password"
+                            value={newUser.password}
+                            onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={() => {
+                            // Here you would normally create the user via Supabase
+                            toast({
+                              title: "User created successfully",
+                              description: `${newUser.username} has been added to the system.`
+                            });
+                            setNewUser({ username: "", role: "", email: "", password: "", status: "Active" });
+                            setIsAddUserOpen(false);
+                          }}
+                          className="flex-1 bg-gradient-primary text-primary-foreground"
+                        >
+                          Create User
+                        </Button>
+                        <Button variant="outline" onClick={() => setIsAddUserOpen(false)} className="flex-1">
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>

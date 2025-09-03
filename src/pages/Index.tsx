@@ -154,13 +154,13 @@ const Index = () => {
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <Shield className="w-8 h-8" />
-                <span className="text-xl font-bold">Naija Census Pulse</span>
-              </div>
-              <p className="text-primary-foreground/80">
-                Nigeria's premier digital identity and registry system, securing the future of our nation.
-              </p>
+                <div className="flex items-center space-x-3">
+                  <Shield className="w-8 h-8" />
+                  <span className="text-xl font-bold">NIMADS</span>
+                </div>
+                <p className="text-primary-foreground/80">
+                  National Integrated Military & Demographic System - securing Nigeria's future through comprehensive data management.
+                </p>
             </div>
             
             <div>

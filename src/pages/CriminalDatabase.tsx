@@ -20,14 +20,56 @@ const CriminalDatabase = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [crimeTypeFilter, setCrimeTypeFilter] = useState("all");
+  const [records, setRecords] = useState(criminalRecords);
+  const [selectedRecord, setSelectedRecord] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newRecord, setNewRecord] = useState({
+    name: "",
+    crime: "",
+    location: "",
+    biometrics: "",
+    status: "Wanted",
+    photo: null as File | null
+  });
 
-  const filteredRecords = criminalRecords.filter(record => {
+  const filteredRecords = records.filter(record => {
     const matchesSearch = record.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          record.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || record.status.toLowerCase() === statusFilter;
     const matchesType = crimeTypeFilter === "all" || record.crime.toLowerCase().includes(crimeTypeFilter.toLowerCase());
     return matchesSearch && matchesStatus && matchesType;
   });
+
+  const handleAddRecord = () => {
+    if (!newRecord.name || !newRecord.crime || !newRecord.location) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    const record = {
+      id: `CR${String(records.length + 1).padStart(3, '0')}`,
+      name: newRecord.name,
+      crime: newRecord.crime,
+      status: newRecord.status,
+      location: newRecord.location,
+      biometrics: newRecord.biometrics || `BIO${Math.floor(Math.random() * 1000)}`
+    };
+
+    setRecords(prev => [...prev, record]);
+    setNewRecord({ name: "", crime: "", location: "", biometrics: "", status: "Wanted", photo: null });
+    alert("Criminal record added successfully");
+  };
+
+  const handleUpdateRecord = () => {
+    if (!selectedRecord) return;
+    
+    setRecords(prev => prev.map(r => 
+      r.id === selectedRecord.id ? selectedRecord : r
+    ));
+    setIsEditing(false);
+    setSelectedRecord(null);
+    alert("Record updated successfully");
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -56,49 +98,69 @@ const CriminalDatabase = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" placeholder="Enter full name" />
+                  <Input 
+                    id="name" 
+                    placeholder="Enter full name" 
+                    value={newRecord.name}
+                    onChange={(e) => setNewRecord(prev => ({ ...prev, name: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="crime-type">Crime Type</Label>
-                  <Select>
+                  <Select value={newRecord.crime} onValueChange={(value) => setNewRecord(prev => ({ ...prev, crime: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select crime type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="terrorism">Terrorism</SelectItem>
-                      <SelectItem value="kidnapping">Kidnapping</SelectItem>
-                      <SelectItem value="robbery">Robbery</SelectItem>
-                      <SelectItem value="fraud">Fraud</SelectItem>
-                      <SelectItem value="murder">Murder</SelectItem>
+                      <SelectItem value="Terrorism">Terrorism</SelectItem>
+                      <SelectItem value="Kidnapping">Kidnapping</SelectItem>
+                      <SelectItem value="Robbery">Robbery</SelectItem>
+                      <SelectItem value="Fraud">Fraud</SelectItem>
+                      <SelectItem value="Murder">Murder</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="location">Last Known Location</Label>
-                  <Input id="location" placeholder="Enter location" />
+                  <Input 
+                    id="location" 
+                    placeholder="Enter location" 
+                    value={newRecord.location}
+                    onChange={(e) => setNewRecord(prev => ({ ...prev, location: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="biometrics">Biometrics ID</Label>
-                  <Input id="biometrics" placeholder="Enter biometrics ID" />
+                  <Input 
+                    id="biometrics" 
+                    placeholder="Enter biometrics ID" 
+                    value={newRecord.biometrics}
+                    onChange={(e) => setNewRecord(prev => ({ ...prev, biometrics: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
-                  <Select>
+                  <Select value={newRecord.status} onValueChange={(value) => setNewRecord(prev => ({ ...prev, status: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="wanted">Active/Wanted</SelectItem>
-                      <SelectItem value="arrested">Arrested</SelectItem>
+                      <SelectItem value="Wanted">Active/Wanted</SelectItem>
+                      <SelectItem value="Arrested">Arrested</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="photo">Photo Upload</Label>
-                  <Input id="photo" type="file" accept="image/*" />
+                  <Input 
+                    id="photo" 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={(e) => setNewRecord(prev => ({ ...prev, photo: e.target.files?.[0] || null }))}
+                  />
                 </div>
               </div>
-              <Button className="w-full bg-gradient-military text-white">Add Criminal Entry</Button>
+              <Button onClick={handleAddRecord} className="w-full bg-gradient-military text-white">Add Criminal Entry</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -161,12 +223,20 @@ const CriminalDatabase = () => {
                       <TableCell>{record.crime}</TableCell>
                       <TableCell>{record.location}</TableCell>
                       <TableCell>
-                        <Badge variant={record.status === "Wanted" ? "destructive" : "secondary"}>
+                        <Badge variant={record.status === "Wanted" ? "destructive" : "default"} 
+                               className={record.status === "Arrested" ? "bg-green-100 text-green-800 border-green-300" : ""}>
                           {record.status}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setSelectedRecord(record);
+                            setIsEditing(true);
+                          }}
+                        >
                           <Edit className="w-4 h-4" />
                         </Button>
                       </TableCell>
@@ -184,42 +254,78 @@ const CriminalDatabase = () => {
               <CardTitle>Edit Criminal Record</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-name">Full Name</Label>
-                  <Input id="edit-name" defaultValue="Ali Musa" />
+              {isEditing && selectedRecord ? (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-name">Full Name</Label>
+                    <Input 
+                      id="edit-name" 
+                      value={selectedRecord.name}
+                      onChange={(e) => setSelectedRecord(prev => ({ ...prev, name: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-crime-type">Crime Type</Label>
+                    <Select 
+                      value={selectedRecord.crime} 
+                      onValueChange={(value) => setSelectedRecord(prev => ({ ...prev, crime: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Terrorism">Terrorism</SelectItem>
+                        <SelectItem value="Kidnapping">Kidnapping</SelectItem>
+                        <SelectItem value="Robbery">Robbery</SelectItem>
+                        <SelectItem value="Fraud">Fraud</SelectItem>
+                        <SelectItem value="Murder">Murder</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-location">Last Known Location</Label>
+                    <Input 
+                      id="edit-location" 
+                      value={selectedRecord.location}
+                      onChange={(e) => setSelectedRecord(prev => ({ ...prev, location: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-status">Status</Label>
+                    <Select 
+                      value={selectedRecord.status} 
+                      onValueChange={(value) => setSelectedRecord(prev => ({ ...prev, status: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Wanted">Active/Wanted</SelectItem>
+                        <SelectItem value="Arrested">Arrested</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-crime-type">Crime Type</Label>
-                  <Select defaultValue="terrorism">
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="terrorism">Terrorism</SelectItem>
-                      <SelectItem value="kidnapping">Kidnapping</SelectItem>
-                      <SelectItem value="robbery">Robbery</SelectItem>
-                    </SelectContent>
-                  </Select>
+              ) : (
+                <p className="text-muted-foreground text-center py-8">
+                  Select a record from the Search & View tab to edit it.
+                </p>
+              )}
+              
+              {isEditing && selectedRecord && (
+                <div className="flex gap-3">
+                  <Button onClick={handleUpdateRecord} className="flex-1 bg-gradient-military text-white">
+                    Update Record
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => { setIsEditing(false); setSelectedRecord(null); }}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-location">Last Known Location</Label>
-                  <Input id="edit-location" defaultValue="Kano" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-status">Status</Label>
-                  <Select defaultValue="wanted">
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="wanted">Active/Wanted</SelectItem>
-                      <SelectItem value="arrested">Arrested</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <Button className="w-full bg-gradient-military text-white">Update Record</Button>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
