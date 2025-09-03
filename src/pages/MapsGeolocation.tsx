@@ -12,35 +12,35 @@ import { MapPin, Plus, Filter, Map, Navigation, AlertTriangle, Eye, CheckCircle 
 import MapboxMap from "@/components/MapboxMap";
 import { useToast } from "@/hooks/use-toast";
 
+// Enhanced map pins data
+const [mapPins, setMapPins] = useState([
+  {
+    id: "P001",
+    coordinates: [3.3792, 6.5244] as [number, number],
+    description: "Suspect spotted at Lagos Island",
+    crimeType: "kidnapping",
+    status: "active" as const,
+    timestamp: "2025-08-25 14:30"
+  },
+  {
+    id: "P002", 
+    coordinates: [7.4951, 9.0579] as [number, number],
+    description: "Biometric match at checkpoint",
+    crimeType: "terrorism",
+    status: "under investigation" as const,
+    timestamp: "2025-08-25 12:15"
+  },
+  {
+    id: "P003",
+    coordinates: [8.5373, 11.9504] as [number, number], 
+    description: "Wanted person sighting resolved",
+    crimeType: "armed-robbery",
+    status: "resolved" as const,
+    timestamp: "2025-08-25 09:45"
+  }
+]);
+
 export default function MapsGeolocation() {
-  // Enhanced map pins data
-  const [mapPins, setMapPins] = useState([
-    {
-      id: "P001",
-      coordinates: [3.3792, 6.5244] as [number, number],
-      description: "Suspect spotted at Lagos Island",
-      crimeType: "kidnapping",
-      status: "active" as const,
-      timestamp: "2025-08-25 14:30"
-    },
-    {
-      id: "P002", 
-      coordinates: [7.4951, 9.0579] as [number, number],
-      description: "Biometric match at checkpoint",
-      crimeType: "terrorism",
-      status: "under investigation" as const,
-      timestamp: "2025-08-25 12:15"
-    },
-    {
-      id: "P003",
-      coordinates: [8.5373, 11.9504] as [number, number], 
-      description: "Wanted person sighting resolved",
-      crimeType: "armed-robbery",
-      status: "resolved" as const,
-      timestamp: "2025-08-25 09:45"
-    }
-  ]);
-  
   const [selectedPin, setSelectedPin] = useState<typeof mapPins[0] | null>(null);
   const [newPin, setNewPin] = useState({
     coordinates: "",
