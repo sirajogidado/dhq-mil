@@ -75,8 +75,8 @@ export function AppSidebar() {
           </div>
           {!isCollapsed && (
             <div>
-              <h2 className="text-sm font-bold text-white">DHQ</h2>
-              <p className="text-xs text-white/80">Military Database</p>
+              <h2 className="text-sm font-bold text-white">NIMADS</h2>
+              <p className="text-xs text-white/80">National Integrated Military & Demographic System</p>
             </div>
           )}
         </div>

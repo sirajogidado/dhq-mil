@@ -113,7 +113,7 @@ const Login = () => {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">
-            Defence Headquarters
+            NIMADS
           </h1>
           <p className="text-white/90 text-sm">
             NIMADS - National Integrated Military & Demographic System
