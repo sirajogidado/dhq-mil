@@ -26,8 +26,70 @@ const UserManagement = () => {
     role: "",
     email: "",
     password: "",
+    department: "",
+    rank: "",
+    unit: "",
+    phoneNumber: "",
     status: "Active"
   });
+
+  const handleCreateUser = async () => {
+    if (!newUser.username || !newUser.email || !newUser.password || !newUser.role) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.functions.invoke('create-admin-user', {
+        body: {
+          email: newUser.email,
+          password: newUser.password,
+          fullName: newUser.username,
+          role: newUser.role,
+          department: newUser.department,
+          rank: newUser.rank,
+          unit: newUser.unit,
+          phoneNumber: newUser.phoneNumber
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "User created successfully",
+        description: `${newUser.username} has been added to the system and can now login.`
+      });
+
+      setNewUser({ 
+        username: "", 
+        role: "", 
+        email: "", 
+        password: "", 
+        department: "", 
+        rank: "", 
+        unit: "", 
+        phoneNumber: "", 
+        status: "Active" 
+      });
+      setIsAddUserOpen(false);
+      
+      // Reload data to show the new user
+      loadData();
+    } catch (error: any) {
+      toast({
+        title: "Error creating user",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Load data on component mount
   useEffect(() => {
@@ -215,72 +277,104 @@ const UserManagement = () => {
                     <DialogHeader>
                       <DialogTitle>Create New System User</DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="new-username">Full Name</Label>
-                          <Input
-                            id="new-username"
-                            placeholder="Enter full name"
-                            value={newUser.username}
-                            onChange={(e) => setNewUser(prev => ({ ...prev, username: e.target.value }))}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="new-email">Email</Label>
-                          <Input
-                            id="new-email"
-                            type="email"
-                            placeholder="user@dhq.mil.ng"
-                            value={newUser.email}
-                            onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
-                          />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="new-role">Role</Label>
-                          <Select value={newUser.role} onValueChange={(value) => setNewUser(prev => ({ ...prev, role: value }))}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="admin">Admin</SelectItem>
-                              <SelectItem value="editor">Editor</SelectItem>
-                              <SelectItem value="viewer">Viewer</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="new-password">Password</Label>
-                          <Input
-                            id="new-password"
-                            type="password"
-                            placeholder="Enter password"
-                            value={newUser.password}
-                            onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
-                          />
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          onClick={() => {
-                            // Here you would normally create the user via Supabase
-                            toast({
-                              title: "User created successfully",
-                              description: `${newUser.username} has been added to the system.`
-                            });
-                            setNewUser({ username: "", role: "", email: "", password: "", status: "Active" });
-                            setIsAddUserOpen(false);
-                          }}
-                          className="flex-1 bg-gradient-primary text-primary-foreground"
-                        >
-                          Create User
-                        </Button>
-                        <Button variant="outline" onClick={() => setIsAddUserOpen(false)} className="flex-1">
-                          Cancel
-                        </Button>
-                      </div>
+                     <div className="space-y-4">
+                       <div className="grid grid-cols-2 gap-4">
+                         <div className="space-y-2">
+                           <Label htmlFor="new-username">Full Name *</Label>
+                           <Input
+                             id="new-username"
+                             placeholder="Enter full name"
+                             value={newUser.username}
+                             onChange={(e) => setNewUser(prev => ({ ...prev, username: e.target.value }))}
+                           />
+                         </div>
+                         <div className="space-y-2">
+                           <Label htmlFor="new-email">Email *</Label>
+                           <Input
+                             id="new-email"
+                             type="email"
+                             placeholder="user@dhq.mil.ng"
+                             value={newUser.email}
+                             onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
+                           />
+                         </div>
+                       </div>
+                       <div className="grid grid-cols-2 gap-4">
+                         <div className="space-y-2">
+                           <Label htmlFor="new-role">Role *</Label>
+                           <Select value={newUser.role} onValueChange={(value) => setNewUser(prev => ({ ...prev, role: value }))}>
+                             <SelectTrigger>
+                               <SelectValue placeholder="Select role" />
+                             </SelectTrigger>
+                             <SelectContent>
+                               <SelectItem value="admin">Admin</SelectItem>
+                               <SelectItem value="analyst">Analyst</SelectItem>
+                               <SelectItem value="operator">Operator</SelectItem>
+                               <SelectItem value="viewer">Viewer</SelectItem>
+                             </SelectContent>
+                           </Select>
+                         </div>
+                         <div className="space-y-2">
+                           <Label htmlFor="new-password">Password *</Label>
+                           <Input
+                             id="new-password"
+                             type="password"
+                             placeholder="Enter password"
+                             value={newUser.password}
+                             onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
+                           />
+                         </div>
+                       </div>
+                       <div className="grid grid-cols-3 gap-4">
+                         <div className="space-y-2">
+                           <Label htmlFor="new-department">Department</Label>
+                           <Input
+                             id="new-department"
+                             placeholder="e.g., Intelligence"
+                             value={newUser.department}
+                             onChange={(e) => setNewUser(prev => ({ ...prev, department: e.target.value }))}
+                           />
+                         </div>
+                         <div className="space-y-2">
+                           <Label htmlFor="new-rank">Rank</Label>
+                           <Input
+                             id="new-rank"
+                             placeholder="e.g., Captain"
+                             value={newUser.rank}
+                             onChange={(e) => setNewUser(prev => ({ ...prev, rank: e.target.value }))}
+                           />
+                         </div>
+                         <div className="space-y-2">
+                           <Label htmlFor="new-unit">Unit</Label>
+                           <Input
+                             id="new-unit"
+                             placeholder="e.g., DHQ Lagos"
+                             value={newUser.unit}
+                             onChange={(e) => setNewUser(prev => ({ ...prev, unit: e.target.value }))}
+                           />
+                         </div>
+                       </div>
+                       <div className="space-y-2">
+                         <Label htmlFor="new-phone">Phone Number</Label>
+                         <Input
+                           id="new-phone"
+                           placeholder="+234-xxx-xxx-xxxx"
+                           value={newUser.phoneNumber}
+                           onChange={(e) => setNewUser(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                         />
+                       </div>
+                       <div className="flex gap-2">
+                         <Button 
+                           onClick={handleCreateUser}
+                           disabled={loading || !newUser.username || !newUser.email || !newUser.password || !newUser.role}
+                           className="flex-1 bg-gradient-primary text-primary-foreground"
+                         >
+                           {loading ? "Creating..." : "Create User"}
+                         </Button>
+                         <Button variant="outline" onClick={() => setIsAddUserOpen(false)} className="flex-1">
+                           Cancel
+                         </Button>
+                       </div>
                     </div>
                   </DialogContent>
                 </Dialog>

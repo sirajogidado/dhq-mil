@@ -66,17 +66,18 @@ export function AppSidebar() {
     <Sidebar className={`${isCollapsed ? "w-16" : "w-64"} border-r border-sidebar-border bg-sidebar-background`}>
       <SidebarHeader className="border-b border-sidebar-border bg-gradient-military">
         <div className="flex items-center gap-3 p-4">
-          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+          <div className="relative w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
             <img 
               src="/lovable-uploads/7eba8c59-5aed-446e-89fc-7f834f8505c4.png" 
-              alt="DHQ Logo" 
-              className="w-8 h-8 object-contain"
+              alt="NIMADS Logo" 
+              className="w-10 h-10 object-contain rounded-full"
             />
+            <div className="absolute inset-0 rounded-full border-2 border-white/20"></div>
           </div>
           {!isCollapsed && (
-            <div>
-              <h2 className="text-sm font-bold text-white">NIMADS</h2>
-              <p className="text-xs text-white/80">National Integrated Military & Demographic System</p>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-sm font-bold text-white truncate">NIMADS</h2>
+              <p className="text-xs text-white/80 truncate">National Integrated Military & Demographic System</p>
             </div>
           )}
         </div>
