@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,21 +6,177 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { Settings, HelpCircle, User, Shield, Bell, LogOut } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Settings, HelpCircle, User, Shield, Bell, LogOut, Camera } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/AuthProvider";
 
 const SettingsHelp = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [profile, setProfile] = useState({
-    name: "Admin User",
-    email: "admin@dhq.mil.ng",
+    name: "",
+    email: "",
+    profilePictureUrl: "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: ""
   });
+
+  useEffect(() => {
+    loadProfile();
+  }, [user]);
+
+  const loadProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { data: userProfile, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) throw error;
+
+      setProfile(prev => ({
+        ...prev,
+        name: userProfile.full_name || "",
+        email: userProfile.email || user.email || "",
+        profilePictureUrl: userProfile.profile_picture_url || ""
+      }));
+    } catch (error: any) {
+      console.error('Error loading profile:', error);
+    }
+  };
+
+  const handleProfilePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    setUploadingImage(true);
+    try {
+      // Upload image to storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/profile.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('profiles')
+        .upload(fileName, file, { 
+          cacheControl: '3600',
+          upsert: true 
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data } = supabase.storage
+        .from('profiles')
+        .getPublicUrl(fileName);
+
+      const publicUrl = data.publicUrl;
+
+      // Update user profile with new image URL
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .update({ profile_picture_url: publicUrl })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      setProfile(prev => ({ ...prev, profilePictureUrl: publicUrl }));
+
+      toast({
+        title: "Profile Picture Updated",
+        description: "Your profile picture has been successfully updated.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleUpdateProfile = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ 
+          full_name: profile.name,
+          email: profile.email 
+        })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Profile Updated",
+        description: "Your profile information has been successfully updated.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Update Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!profile.newPassword || profile.newPassword !== profile.confirmPassword) {
+      toast({
+        title: "Password Error",
+        description: "New passwords do not match.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: profile.newPassword
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password Changed",
+        description: "Your password has been successfully updated.",
+      });
+
+      // Clear password fields
+      setProfile(prev => ({
+        ...prev,
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: ""
+      }));
+    } catch (error: any) {
+      toast({
+        title: "Password Update Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const [notifications, setNotifications] = useState({
     emailAlerts: true,
@@ -75,7 +231,44 @@ const SettingsHelp = () => {
                 Profile Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
+              {/* Profile Picture Section */}
+              <div className="flex items-center gap-6">
+                <Avatar className="w-24 h-24">
+                  <AvatarImage src={profile.profilePictureUrl} alt="Profile" />
+                  <AvatarFallback className="text-lg">
+                    {profile.name ? profile.name.split(' ').map(n => n[0]).join('') : 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-2">
+                  <h4 className="font-medium">Profile Picture</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Upload a new profile picture. Max size: 5MB
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProfilePictureUpload}
+                      className="hidden"
+                      id="profile-picture-upload"
+                      disabled={uploadingImage}
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => document.getElementById('profile-picture-upload')?.click()}
+                      disabled={uploadingImage}
+                    >
+                      <Camera className="w-4 h-4 mr-2" />
+                      {uploadingImage ? "Uploading..." : "Change Picture"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
@@ -97,47 +290,61 @@ const SettingsHelp = () => {
                 </div>
               </div>
               
-              <Separator />
-              
-              <div className="space-y-4">
-                <h4 className="font-medium">Change Password</h4>
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="current-password">Current Password</Label>
-                    <Input
-                      id="current-password"
-                      type="password"
-                      value={profile.currentPassword}
-                      onChange={(e) => setProfile({ ...profile, currentPassword: e.target.value })}
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="new-password">New Password</Label>
-                      <Input
-                        id="new-password"
-                        type="password"
-                        value={profile.newPassword}
-                        onChange={(e) => setProfile({ ...profile, newPassword: e.target.value })}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="confirm-password">Confirm Password</Label>
-                      <Input
-                        id="confirm-password"
-                        type="password"
-                        value={profile.confirmPassword}
-                        onChange={(e) => setProfile({ ...profile, confirmPassword: e.target.value })}
-                      />
-                    </div>
-                  </div>
+              <Button 
+                onClick={handleUpdateProfile}
+                disabled={loading}
+                className="w-full bg-gradient-primary text-white"
+              >
+                {loading ? "Updating..." : "Update Profile"}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Change Password Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                Change Password
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">New Password</Label>
+                  <Input
+                    id="new-password"
+                    type="password"
+                    value={profile.newPassword}
+                    onChange={(e) => setProfile({ ...profile, newPassword: e.target.value })}
+                    placeholder="Enter new password"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    value={profile.confirmPassword}
+                    onChange={(e) => setProfile({ ...profile, confirmPassword: e.target.value })}
+                    placeholder="Confirm new password"
+                  />
                 </div>
               </div>
               
-              <Button className="w-full bg-gradient-military text-white">
-                Update Profile
+              <Alert>
+                <Shield className="h-4 w-4" />
+                <AlertDescription>
+                  Make sure your password is at least 8 characters long and includes a mix of letters, numbers, and special characters.
+                </AlertDescription>
+              </Alert>
+
+              <Button 
+                onClick={handleChangePassword}
+                disabled={loading || !profile.newPassword || profile.newPassword !== profile.confirmPassword}
+                className="w-full bg-gradient-secondary text-white"
+              >
+                {loading ? "Changing Password..." : "Change Password"}
               </Button>
             </CardContent>
           </Card>
