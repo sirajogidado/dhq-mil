@@ -224,6 +224,7 @@ export type Database = {
           is_active: boolean
           last_login: string | null
           phone_number: string | null
+          profile_picture_url: string | null
           rank: string | null
           role: Database["public"]["Enums"]["user_role"]
           status: string | null
@@ -240,6 +241,7 @@ export type Database = {
           is_active?: boolean
           last_login?: string | null
           phone_number?: string | null
+          profile_picture_url?: string | null
           rank?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           status?: string | null
@@ -256,6 +258,7 @@ export type Database = {
           is_active?: boolean
           last_login?: string | null
           phone_number?: string | null
+          profile_picture_url?: string | null
           rank?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           status?: string | null
