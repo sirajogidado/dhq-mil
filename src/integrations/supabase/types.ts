@@ -277,6 +277,10 @@ export type Database = {
         Args: { registration_id: string }
         Returns: undefined
       }
+      ensure_super_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       generate_registration_id: {
         Args: Record<PropertyKey, never>
         Returns: string
