@@ -8,63 +8,57 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import CitizenSearch from "@/components/CitizenSearch";
 import { useAuth } from "@/components/AuthProvider";
-
-interface DatabaseStats {
-  totalRegistrations: number;
-  verifiedIdentities: number;
-  pendingReviews: number;
-  flaggedProfiles: number;
-}
+import { useData } from "@/context/DataContext";
 
 const DashboardOverview = () => {
   const { user } = useAuth();
-  const [stats, setStats] = useState<DatabaseStats>({
-    totalRegistrations: 0,
-    verifiedIdentities: 0,
-    pendingReviews: 0,
-    flaggedProfiles: 0,
-  });
-
+  const { stats, refreshStats } = useData();
   const [loading, setLoading] = useState(true);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        // Fetch registration stats
-        const { count: totalRegistrations } = await supabase
-          .from('registrations')
-          .select('*', { count: 'exact', head: true });
-
-        const { count: verifiedIdentities } = await supabase
-          .from('registrations')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'verified');
-
-        const { count: pendingReviews } = await supabase
-          .from('registrations')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'pending');
-
-        const { count: flaggedProfiles } = await supabase
-          .from('registrations')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'flagged');
-
-        setStats({
-          totalRegistrations: totalRegistrations || 0,
-          verifiedIdentities: verifiedIdentities || 0,
-          pendingReviews: pendingReviews || 0,
-          flaggedProfiles: flaggedProfiles || 0,
-        });
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
+    setLoading(false);
+    fetchRecentActivity();
   }, []);
+
+  const fetchRecentActivity = async () => {
+    try {
+      // Fetch recent registrations
+      const { data: recentRegs } = await supabase
+        .from('registrations')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      // Fetch recent user activities
+      const { data: recentUsers } = await supabase
+        .from('pending_registrations')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(2);
+
+      const activities = [
+        ...(recentRegs || []).map(reg => ({
+          type: 'registration',
+          title: reg.status === 'flagged' ? 'Security flag raised' : 'New registration verified',
+          description: `Citizen ID: ${reg.registration_id}`,
+          status: reg.status,
+          time: reg.created_at
+        })),
+        ...(recentUsers || []).map(user => ({
+          type: 'user_request',
+          title: 'New registration request',
+          description: `Request from ${user.full_name}`,
+          status: user.status,
+          time: user.created_at
+        }))
+      ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 3);
+
+      setRecentActivity(activities);
+    } catch (error) {
+      console.error('Error fetching recent activity:', error);
+    }
+  };
 
   const statCards = [
     {
@@ -240,24 +234,39 @@ const DashboardOverview = () => {
           </DialogContent>
         </Dialog>
         
-        {quickActions.slice(1).map((action, index) => {
-          const Icon = action.icon;
-          return (
-            <Card key={index + 1} className="cursor-pointer hover:shadow-elegant transition-smooth border-l-4 border-l-primary">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg bg-${action.color}/10`}>
-                    <Icon className={`w-5 h-5 text-${action.color}`} />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">{action.title}</CardTitle>
-                    <CardDescription>{action.description}</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-          );
-        })}
+        <Card 
+          className="cursor-pointer hover:shadow-elegant transition-smooth border-l-4 border-l-destructive"
+          onClick={() => window.location.href = '/dashboard/security-review'}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-destructive/10">
+                <Eye className="w-5 h-5 text-destructive" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Security Review</CardTitle>
+                <CardDescription>Review flagged profiles</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        <Card 
+          className="cursor-pointer hover:shadow-elegant transition-smooth border-l-4 border-l-tertiary"
+          onClick={() => window.location.href = '/dashboard/interpol'}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-tertiary/10">
+                <Shield className="w-5 h-5 text-tertiary" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Interpol Check</CardTitle>
+                <CardDescription>Cross-reference with international database</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
       </div>
 
       {/* Recent Activity */}
@@ -273,33 +282,30 @@ const DashboardOverview = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-              <div>
-                <p className="font-medium">New registration verified</p>
-                <p className="text-sm text-muted-foreground">Citizen ID: NG-2024-123456</p>
+            {recentActivity.length > 0 ? recentActivity.map((activity, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <div>
+                  <p className="font-medium">{activity.title}</p>
+                  <p className="text-sm text-muted-foreground">{activity.description}</p>
+                  <p className="text-xs text-muted-foreground">{new Date(activity.time).toLocaleString()}</p>
+                </div>
+                <Badge 
+                  variant="outline" 
+                  className={
+                    activity.status === 'verified' ? 'text-success border-success' :
+                    activity.status === 'flagged' ? 'text-destructive border-destructive' :
+                    activity.status === 'pending' ? 'text-tertiary border-tertiary' :
+                    'text-muted-foreground border-muted-foreground'
+                  }
+                >
+                  {activity.status?.toUpperCase() || 'NEW'}
+                </Badge>
               </div>
-              <Badge variant="outline" className="text-success border-success">
-                VERIFIED
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-              <div>
-                <p className="font-medium">Security flag raised</p>
-                <p className="text-sm text-muted-foreground">Profile requires manual review</p>
+            )) : (
+              <div className="text-center py-4 text-muted-foreground">
+                No recent activity
               </div>
-              <Badge variant="outline" className="text-destructive border-destructive">
-                FLAGGED
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-              <div>
-                <p className="font-medium">Interpol database sync</p>
-                <p className="text-sm text-muted-foreground">Cross-reference completed</p>
-              </div>
-              <Badge variant="outline" className="text-tertiary border-tertiary">
-                SYNCED
-              </Badge>
-            </div>
+            )}
           </div>
         </CardContent>
       </Card>

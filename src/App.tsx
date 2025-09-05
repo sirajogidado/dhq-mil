@@ -13,20 +13,23 @@ import ReportsAnalytics from "./pages/ReportsAnalytics";
 import UserManagement from "./pages/UserManagement";
 import IncidentReporting from "./pages/IncidentReporting";
 import SettingsHelp from "./pages/SettingsHelp";
-import GlobalOperations from "./pages/GlobalOperations";
+import SecurityReview from "./pages/SecurityReview";
+import InterpolManagement from "./pages/InterpolManagement";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./components/AuthProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { DataProvider } from "./context/DataContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <DataProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />
@@ -39,8 +42,9 @@ const App = () => (
               }
             >
               <Route index element={<DashboardOverview />} />
-              <Route path="global-operations" element={<GlobalOperations />} />
               <Route path="criminal-database" element={<CriminalDatabase />} />
+              <Route path="security-review" element={<SecurityReview />} />
+              <Route path="interpol" element={<InterpolManagement />} />
               <Route path="alerts" element={<AlertsNotifications />} />
               <Route path="maps" element={<MapsGeolocation />} />
               <Route path="reports" element={<ReportsAnalytics />} />
@@ -52,7 +56,8 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-      </TooltipProvider>
+        </TooltipProvider>
+      </DataProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

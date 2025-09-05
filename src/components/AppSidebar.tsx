@@ -19,8 +19,9 @@ import { useToast } from "@/hooks/use-toast";
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
-  { title: "Global Operations", url: "/dashboard/global-operations", icon: Settings },
   { title: "Criminal Database", url: "/dashboard/criminal-database", icon: Users },
+  { title: "Security Review", url: "/dashboard/security-review", icon: AlertTriangle },
+  { title: "Interpol Integration", url: "/dashboard/interpol", icon: Shield },
   { title: "Alerts & Notifications", url: "/dashboard/alerts", icon: Bell },
   { title: "Maps & Geolocation", url: "/dashboard/maps", icon: Map },
   { title: "Reports & Analytics", url: "/dashboard/reports", icon: FileText },
