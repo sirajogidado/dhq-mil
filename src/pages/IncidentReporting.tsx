@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,42 +9,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertTriangle, Plus, Eye, FileText, Clock } from "lucide-react";
-
-// Dummy data
-const incidents = [
-  {
-    id: "INC001",
-    reporter: "Citizen X",
-    incidentType: "Sighting",
-    location: "Abuja Central Market",
-    description: "Suspect seen at market around 2PM",
-    status: "Pending Review",
-    timestamp: "2025-08-25 14:30",
-    priority: "Medium"
-  },
-  {
-    id: "INC002",
-    reporter: "Officer Johnson",
-    incidentType: "Tip",
-    location: "Lagos Island",
-    description: "Informant reports suspicious activity",
-    status: "Under Investigation",
-    timestamp: "2025-08-25 11:45",
-    priority: "High"
-  },
-  {
-    id: "INC003",
-    reporter: "Anonymous",
-    incidentType: "Evidence",
-    location: "Kano State",
-    description: "Photo evidence of wanted person",
-    status: "Verified",
-    timestamp: "2025-08-24 16:20",
-    priority: "High"
-  },
-];
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const IncidentReporting = () => {
+  const [incidents, setIncidents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [incident, setIncident] = useState({
     reporter: "",
     incidentType: "",
@@ -53,21 +24,100 @@ const IncidentReporting = () => {
     evidence: null as File | null
   });
 
+  useEffect(() => {
+    loadIncidents();
+  }, []);
+
+  const loadIncidents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('incidents')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setIncidents(data || []);
+    } catch (error) {
+      console.error('Error loading incidents:', error);
+      toast.error('Failed to load incidents');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmitIncident = async () => {
+    try {
+      if (!incident.reporter || !incident.incidentType || !incident.location || !incident.description) {
+        toast.error('Please fill in all required fields');
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+
+      const { error } = await supabase
+        .from('incidents')
+        .insert([{
+          reporter_name: incident.reporter,
+          incident_type: incident.incidentType,
+          location: incident.location,
+          description: incident.description,
+          priority: 'medium',
+          status: 'pending',
+          reported_by: user?.id || null
+        }]);
+
+      if (error) throw error;
+
+      toast.success('Incident report submitted successfully');
+      setIncident({
+        reporter: "",
+        incidentType: "",
+        location: "",
+        description: "",
+        evidence: null
+      });
+      loadIncidents();
+    } catch (error) {
+      console.error('Error submitting incident:', error);
+      toast.error('Failed to submit incident report');
+    }
+  };
+
+  const handleApproveIncident = async (incidentId: string) => {
+    try {
+      const { error } = await supabase
+        .from('incidents')
+        .update({ 
+          status: 'approved',
+          approved_at: new Date().toISOString()
+        })
+        .eq('id', incidentId);
+
+      if (error) throw error;
+
+      toast.success('Incident approved successfully');
+      loadIncidents();
+    } catch (error) {
+      console.error('Error approving incident:', error);
+      toast.error('Failed to approve incident');
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Pending Review": return "secondary";
-      case "Under Investigation": return "default";
-      case "Verified": return "secondary";
-      case "Rejected": return "destructive";
+      case "pending": return "secondary";
+      case "approved": return "default";
+      case "verified": return "secondary";
+      case "rejected": return "destructive";
       default: return "outline";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "High": return "destructive";
-      case "Medium": return "secondary";
-      case "Low": return "outline";
+      case "high": return "destructive";
+      case "medium": return "secondary";
+      case "low": return "outline";
       default: return "outline";
     }
   };
@@ -160,7 +210,7 @@ const IncidentReporting = () => {
                 </p>
               </div>
               
-              <Button className="w-full bg-gradient-military text-white">
+              <Button onClick={handleSubmitIncident} className="w-full bg-gradient-military text-white">
                 Submit Incident Report
               </Button>
             </CardContent>
@@ -227,37 +277,52 @@ const IncidentReporting = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {incidents.map((incident) => (
-                    <TableRow key={incident.id}>
-                      <TableCell className="font-medium">{incident.id}</TableCell>
-                      <TableCell>{incident.reporter}</TableCell>
-                      <TableCell>{incident.incidentType}</TableCell>
-                      <TableCell>{incident.location}</TableCell>
-                      <TableCell>
-                        <Badge variant={getPriorityColor(incident.priority)}>
-                          {incident.priority}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getStatusColor(incident.status)}>
-                          {incident.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {incident.timestamp}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            Approve
-                          </Button>
-                        </div>
-                      </TableCell>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center">Loading...</TableCell>
                     </TableRow>
-                  ))}
+                  ) : incidents.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center">No incidents found</TableCell>
+                    </TableRow>
+                  ) : (
+                    incidents.map((incident) => (
+                      <TableRow key={incident.id}>
+                        <TableCell className="font-medium">{incident.id.substring(0, 8)}</TableCell>
+                        <TableCell>{incident.reporter_name}</TableCell>
+                        <TableCell>{incident.incident_type}</TableCell>
+                        <TableCell>{incident.location}</TableCell>
+                        <TableCell>
+                          <Badge variant={getPriorityColor(incident.priority)}>
+                            {incident.priority}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={getStatusColor(incident.status)}>
+                            {incident.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {new Date(incident.created_at).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleApproveIncident(incident.id)}
+                              disabled={incident.status === 'approved'}
+                            >
+                              {incident.status === 'approved' ? 'Approved' : 'Approve'}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
@@ -274,32 +339,38 @@ const IncidentReporting = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {incidents.map((incident) => (
-                  <div key={incident.id} className="border rounded-lg p-4 space-y-3">
-                    <div className="flex justify-between items-start">
+                {loading ? (
+                  <div className="text-center">Loading...</div>
+                ) : incidents.length === 0 ? (
+                  <div className="text-center text-muted-foreground">No incidents found</div>
+                ) : (
+                  incidents.map((incident) => (
+                    <div key={incident.id} className="border rounded-lg p-4 space-y-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-medium">{incident.id.substring(0, 8)} - {incident.incident_type}</h4>
+                          <p className="text-sm text-muted-foreground">Reporter: {incident.reporter_name}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Badge variant={getPriorityColor(incident.priority)}>
+                            {incident.priority}
+                          </Badge>
+                          <Badge variant={getStatusColor(incident.status)}>
+                            {incident.status}
+                          </Badge>
+                        </div>
+                      </div>
+                      
                       <div>
-                        <h4 className="font-medium">{incident.id} - {incident.incidentType}</h4>
-                        <p className="text-sm text-muted-foreground">Reporter: {incident.reporter}</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Badge variant={getPriorityColor(incident.priority)}>
-                          {incident.priority}
-                        </Badge>
-                        <Badge variant={getStatusColor(incident.status)}>
-                          {incident.status}
-                        </Badge>
+                        <p className="text-sm"><strong>Location:</strong> {incident.location}</p>
+                        <p className="text-sm"><strong>Description:</strong> {incident.description}</p>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Submitted: {new Date(incident.created_at).toLocaleString()}
+                        </p>
                       </div>
                     </div>
-                    
-                    <div>
-                      <p className="text-sm"><strong>Location:</strong> {incident.location}</p>
-                      <p className="text-sm"><strong>Description:</strong> {incident.description}</p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Submitted: {incident.timestamp}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>

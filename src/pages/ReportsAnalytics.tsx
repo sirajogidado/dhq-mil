@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Download, BarChart3, TrendingUp, PieChart } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const ReportsAnalytics = () => {
   const [reportConfig, setReportConfig] = useState({
@@ -16,11 +18,67 @@ const ReportsAnalytics = () => {
     format: "pdf"
   });
 
+  const handleGenerateReport = async () => {
+    try {
+      if (!reportConfig.dateFrom || !reportConfig.dateTo) {
+        toast.error('Please select both start and end dates');
+        return;
+      }
+
+      // Save report configuration to database
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Please login to generate reports');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('reports')
+        .insert([{
+          report_type: 'Crime Analysis Report',
+          date_from: reportConfig.dateFrom,
+          date_to: reportConfig.dateTo,
+          crime_type: reportConfig.crimeType,
+          region: reportConfig.region,
+          format: reportConfig.format,
+          generated_by: user.id
+        }]);
+
+      if (error) throw error;
+
+      toast.success('Report generated successfully!');
+      
+      // Simulate file download
+      const reportData = `Crime Analysis Report
+Generated: ${new Date().toLocaleDateString()}
+Period: ${reportConfig.dateFrom} to ${reportConfig.dateTo}
+Crime Type: ${reportConfig.crimeType}
+Region: ${reportConfig.region}
+Format: ${reportConfig.format.toUpperCase()}
+
+This is a sample report. In production, this would contain actual data analysis.`;
+
+      const blob = new Blob([reportData], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `crime-report-${reportConfig.dateFrom}-${reportConfig.dateTo}.${reportConfig.format === 'pdf' ? 'txt' : reportConfig.format}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('Error generating report:', error);
+      toast.error('Failed to generate report');
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-foreground">Reports & Analytics</h1>
-        <Button className="bg-gradient-military text-white">
+        <Button onClick={handleGenerateReport} className="bg-gradient-military text-white">
           <Download className="w-4 h-4 mr-2" />
           Generate Report
         </Button>
@@ -112,7 +170,7 @@ const ReportsAnalytics = () => {
                   </Select>
                 </div>
                 
-                <Button className="w-full bg-gradient-military text-white">
+                <Button onClick={handleGenerateReport} className="w-full bg-gradient-military text-white">
                   <Download className="w-4 h-4 mr-2" />
                   Generate Report
                 </Button>

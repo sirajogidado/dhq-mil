@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      incidents: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          description: string
+          evidence_url: string | null
+          id: string
+          incident_type: string
+          location: string
+          priority: string
+          reported_by: string | null
+          reporter_name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          description: string
+          evidence_url?: string | null
+          id?: string
+          incident_type: string
+          location: string
+          priority?: string
+          reported_by?: string | null
+          reporter_name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          description?: string
+          evidence_url?: string | null
+          id?: string
+          incident_type?: string
+          location?: string
+          priority?: string
+          reported_by?: string | null
+          reporter_name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pending_registrations: {
         Row: {
           approved_at: string | null
@@ -211,6 +259,45 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
           wanted_status?: string | null
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          created_at: string
+          crime_type: string
+          date_from: string
+          date_to: string
+          file_url: string | null
+          format: string
+          generated_by: string | null
+          id: string
+          region: string
+          report_type: string
+        }
+        Insert: {
+          created_at?: string
+          crime_type: string
+          date_from: string
+          date_to: string
+          file_url?: string | null
+          format: string
+          generated_by?: string | null
+          id?: string
+          region: string
+          report_type: string
+        }
+        Update: {
+          created_at?: string
+          crime_type?: string
+          date_from?: string
+          date_to?: string
+          file_url?: string | null
+          format?: string
+          generated_by?: string | null
+          id?: string
+          region?: string
+          report_type?: string
         }
         Relationships: []
       }

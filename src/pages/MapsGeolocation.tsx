@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Plus, Filter, Map, Navigation, AlertTriangle, Eye, CheckCircle } from "lucide-react";
-import MapboxMap from "@/components/MapboxMap";
+import LeafletMap from "@/components/LeafletMap";
 import { useToast } from "@/hooks/use-toast";
 
 export default function MapsGeolocation() {
@@ -166,7 +166,7 @@ export default function MapsGeolocation() {
                 {/* Interactive Map for Location Selection */}
                 <div>
                   <Label>Select Location on Map</Label>
-                  <MapboxMap onLocationSelect={handleLocationSelect} />
+                  <LeafletMap onLocationSelect={handleLocationSelect} />
                 </div>
 
                 <div className="flex justify-end gap-3">
@@ -201,7 +201,7 @@ export default function MapsGeolocation() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <MapboxMap onLocationSelect={handleLocationSelect} />
+              <LeafletMap onLocationSelect={handleLocationSelect} />
             </CardContent>
           </Card>
         </TabsContent>

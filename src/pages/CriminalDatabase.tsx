@@ -102,7 +102,7 @@ const CriminalDatabase = () => {
           severity: newRecord.severity,
           wanted_status: newRecord.wanted_status,
           status: 'flagged',
-          gender: 'Not specified',
+          gender: 'male',
           phone_number: 'Not provided',
           address: 'Not provided',
           state: 'Unknown',
