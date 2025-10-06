@@ -15,6 +15,7 @@ import IncidentReporting from "./pages/IncidentReporting";
 import SettingsHelp from "./pages/SettingsHelp";
 import SecurityReview from "./pages/SecurityReview";
 import InterpolManagement from "./pages/InterpolManagement";
+import AIAssistant from "./pages/AIAssistant";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./components/AuthProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -50,6 +51,7 @@ const App = () => (
               <Route path="reports" element={<ReportsAnalytics />} />
               <Route path="user-management" element={<UserManagement />} />
               <Route path="incidents" element={<IncidentReporting />} />
+              <Route path="ai-assistant" element={<AIAssistant />} />
               <Route path="settings" element={<SettingsHelp />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

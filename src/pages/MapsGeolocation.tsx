@@ -163,10 +163,8 @@ export default function MapsGeolocation() {
                   />
                 </div>
                 
-                {/* Interactive Map for Location Selection */}
-                <div>
-                  <Label>Select Location on Map</Label>
-                  <LeafletMap onLocationSelect={handleLocationSelect} />
+                <div className="text-sm text-muted-foreground">
+                  Click on the main map below to select a location, then fill out this form.
                 </div>
 
                 <div className="flex justify-end gap-3">

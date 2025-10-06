@@ -1,4 +1,4 @@
-import { BarChart3, Users, Shield, FileText, LogOut, Settings, AlertTriangle, Map, MapPin, Bell } from "lucide-react";
+import { BarChart3, Users, Shield, FileText, LogOut, Settings, AlertTriangle, Map, MapPin, Bell, Bot } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   Sidebar,
@@ -27,6 +27,7 @@ const menuItems = [
   { title: "Reports & Analytics", url: "/dashboard/reports", icon: FileText },
   { title: "User Management", url: "/dashboard/user-management", icon: Shield },
   { title: "Incident Reporting", url: "/dashboard/incidents", icon: AlertTriangle },
+  { title: "AI Assistant", url: "/dashboard/ai-assistant", icon: Bot },
   { title: "Settings & Help", url: "/dashboard/settings", icon: Settings },
 ];
 
