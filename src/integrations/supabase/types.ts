@@ -14,16 +14,261 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      incidents: {
+        Row: {
+          approved_at: string | null
+          created_at: string
+          description: string | null
+          evidence_url: string | null
+          id: string
+          incident_type: string
+          location: string | null
+          priority: string | null
+          reported_by: string | null
+          reporter_name: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          created_at?: string
+          description?: string | null
+          evidence_url?: string | null
+          id?: string
+          incident_type: string
+          location?: string | null
+          priority?: string | null
+          reported_by?: string | null
+          reporter_name?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          created_at?: string
+          description?: string | null
+          evidence_url?: string | null
+          id?: string
+          incident_type?: string
+          location?: string | null
+          priority?: string | null
+          reported_by?: string | null
+          reporter_name?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pending_registrations: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          email: string
+          id: string
+          requested_at: string
+          status: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          requested_at?: string
+          status?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          requested_at?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
+      registrations: {
+        Row: {
+          address: string | null
+          created_at: string
+          crime_type: string | null
+          date_of_birth: string | null
+          email: string | null
+          first_name: string
+          gender: string | null
+          id: string
+          last_name: string
+          last_seen_location: string | null
+          lga: string | null
+          notes: string | null
+          phone_number: string | null
+          registration_id: string | null
+          severity: string | null
+          state: string | null
+          status: string | null
+          updated_at: string
+          wanted_status: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          crime_type?: string | null
+          date_of_birth?: string | null
+          email?: string | null
+          first_name: string
+          gender?: string | null
+          id?: string
+          last_name: string
+          last_seen_location?: string | null
+          lga?: string | null
+          notes?: string | null
+          phone_number?: string | null
+          registration_id?: string | null
+          severity?: string | null
+          state?: string | null
+          status?: string | null
+          updated_at?: string
+          wanted_status?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          crime_type?: string | null
+          date_of_birth?: string | null
+          email?: string | null
+          first_name?: string
+          gender?: string | null
+          id?: string
+          last_name?: string
+          last_seen_location?: string | null
+          lga?: string | null
+          notes?: string | null
+          phone_number?: string | null
+          registration_id?: string | null
+          severity?: string | null
+          state?: string | null
+          status?: string | null
+          updated_at?: string
+          wanted_status?: string | null
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          created_at: string
+          crime_type: string | null
+          date_from: string | null
+          date_to: string | null
+          format: string | null
+          generated_by: string | null
+          id: string
+          region: string | null
+          report_type: string
+        }
+        Insert: {
+          created_at?: string
+          crime_type?: string | null
+          date_from?: string | null
+          date_to?: string | null
+          format?: string | null
+          generated_by?: string | null
+          id?: string
+          region?: string | null
+          report_type: string
+        }
+        Update: {
+          created_at?: string
+          crime_type?: string | null
+          date_from?: string | null
+          date_to?: string | null
+          format?: string | null
+          generated_by?: string | null
+          id?: string
+          region?: string | null
+          report_type?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          created_at: string
+          department: string | null
+          email: string
+          full_name: string | null
+          id: string
+          is_active: boolean | null
+          profile_picture_url: string | null
+          rank: string | null
+          unit: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          email: string
+          full_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          profile_picture_url?: string | null
+          rank?: string | null
+          unit?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          profile_picture_url?: string | null
+          rank?: string | null
+          unit?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +395,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const

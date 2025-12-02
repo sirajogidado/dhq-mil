@@ -48,7 +48,7 @@ const DashboardOverview = () => {
         ...(recentUsers || []).map(user => ({
           type: 'user_request',
           title: 'New registration request',
-          description: `Request from ${user.full_name}`,
+          description: `Request from ${user.email}`,
           status: user.status,
           time: user.created_at
         }))
