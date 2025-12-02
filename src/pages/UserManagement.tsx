@@ -107,14 +107,31 @@ const UserManagement = () => {
       if (pendingError) throw pendingError;
       setPendingRegistrations(pending || []);
 
-      // Load existing users
+      // Load existing users with their roles
       const { data: userProfiles, error: usersError } = await supabase
         .from('user_profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (usersError) throw usersError;
-      setUsers(userProfiles || []);
+
+      // Load user roles
+      const { data: userRoles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) throw rolesError;
+
+      // Merge roles with user profiles
+      const usersWithRoles = (userProfiles || []).map(profile => {
+        const roleRecord = userRoles?.find(r => r.user_id === profile.user_id);
+        return {
+          ...profile,
+          role: roleRecord?.role || 'user'
+        };
+      });
+
+      setUsers(usersWithRoles);
 
     } catch (error: any) {
       toast({
