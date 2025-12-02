@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { email, password, fullName, role, department, rank, unit, phoneNumber } = await req.json()
+    const { email, password, fullName, role, department, rank, unit } = await req.json()
 
     // Create a Supabase client with the service role key
     const supabase = createClient(
@@ -21,51 +21,87 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Create user in Supabase Auth
-    const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
-      email: email,
-      password: password,
-      email_confirm: true,
-    })
+    // Check if user already exists
+    const { data: existingUsers } = await supabase.auth.admin.listUsers()
+    const existingUser = existingUsers?.users?.find(u => u.email === email)
 
-    if (authError) {
-      throw authError
+    let userId: string
+
+    if (existingUser) {
+      // User exists, use their ID
+      userId = existingUser.id
+      console.log('User already exists, updating profile and role')
+    } else {
+      // Create user in Supabase Auth
+      const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+        email: email,
+        password: password,
+        email_confirm: true,
+        user_metadata: { full_name: fullName }
+      })
+
+      if (authError) {
+        throw authError
+      }
+
+      if (!authUser.user) {
+        throw new Error('Failed to create user')
+      }
+
+      userId = authUser.user.id
+      console.log('Created new user:', userId)
     }
 
-    if (!authUser.user) {
-      throw new Error('Failed to create user')
-    }
+    // Wait a moment for the trigger to complete
+    await new Promise(resolve => setTimeout(resolve, 500))
 
-    // Create user profile
+    // Update user profile with additional details
     const { error: profileError } = await supabase
       .from('user_profiles')
-      .insert({
-        user_id: authUser.user.id,
+      .upsert({
+        user_id: userId,
         email: email,
         full_name: fullName,
-        role: role,
         department: department,
         rank: rank,
         unit: unit,
-        phone_number: phoneNumber,
-        status: 'active',
         is_active: true
-      })
+      }, { onConflict: 'user_id' })
 
     if (profileError) {
-      // If profile creation fails, delete the auth user
-      await supabase.auth.admin.deleteUser(authUser.user.id)
-      throw profileError
+      console.error('Profile error:', profileError)
+    }
+
+    // Update or insert user role to admin
+    const { error: deleteRoleError } = await supabase
+      .from('user_roles')
+      .delete()
+      .eq('user_id', userId)
+
+    if (deleteRoleError) {
+      console.error('Delete role error:', deleteRoleError)
+    }
+
+    const { error: roleError } = await supabase
+      .from('user_roles')
+      .insert({
+        user_id: userId,
+        role: role || 'admin'
+      })
+
+    if (roleError) {
+      console.error('Role error:', roleError)
+      throw roleError
     }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         user: {
-          id: authUser.user.id,
+          id: userId,
           email: email,
           full_name: fullName,
-          role: role
+          role: role || 'admin'
         }
       }),
       {
