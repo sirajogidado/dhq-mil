@@ -21,6 +21,7 @@ interface LeafletMapProps {
 const LeafletMap: React.FC<LeafletMapProps> = ({ onLocationSelect }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
+  const [legendOpen, setLegendOpen] = React.useState(false);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -149,10 +150,21 @@ const LeafletMap: React.FC<LeafletMapProps> = ({ onLocationSelect }) => {
   }, [onLocationSelect]);
 
   return (
-    <div className="relative w-full h-96 rounded-lg overflow-hidden border border-border">
+    <div className="relative w-full h-[60vh] min-h-[320px] sm:h-[70vh] md:h-[600px] rounded-lg overflow-hidden border border-border">
       <div ref={mapContainer} className="absolute inset-0" />
-      <div className="absolute top-2 left-2 bg-card/90 backdrop-blur-sm rounded-lg p-3 shadow-md z-[1000]">
-        <div className="text-sm space-y-1">
+      <button
+        type="button"
+        onClick={() => setLegendOpen((v) => !v)}
+        className="sm:hidden absolute top-2 left-2 z-[1001] bg-card/95 backdrop-blur-sm rounded-md px-3 py-1.5 text-xs font-medium shadow-md border border-border"
+      >
+        {legendOpen ? 'Hide legend' : 'Legend'}
+      </button>
+      <div
+        className={`absolute top-2 left-2 bg-card/95 backdrop-blur-sm rounded-lg p-2 sm:p-3 shadow-md z-[1000] max-w-[70%] sm:max-w-none ${
+          legendOpen ? 'block mt-10' : 'hidden'
+        } sm:block sm:mt-0`}
+      >
+        <div className="text-xs sm:text-sm space-y-1">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
             <span>Active Threats</span>
