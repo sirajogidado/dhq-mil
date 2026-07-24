@@ -150,7 +150,7 @@ const LeafletMap: React.FC<LeafletMapProps> = ({ onLocationSelect }) => {
   }, [onLocationSelect]);
 
   return (
-    <div className="relative w-full h-[60vh] min-h-[320px] sm:h-[70vh] md:h-[600px] rounded-lg overflow-hidden border border-border">
+    <div className="relative isolate z-0 w-full h-[60vh] min-h-[320px] sm:h-[70vh] md:h-[600px] rounded-lg overflow-hidden border border-border">
       <div ref={mapContainer} className="absolute inset-0" />
       <button
         type="button"
