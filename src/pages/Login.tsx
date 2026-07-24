@@ -71,9 +71,6 @@ const Login = () => {
         .from('pending_registrations')
         .insert({
           email: email,
-          full_name: email.split('@')[0].replace('.', ' '), // Extract name from email
-          reason_for_access: "Military Database Access Request",
-          department: "To be assigned by admin",
           status: "pending"
         });
 
